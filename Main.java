@@ -1,9 +1,13 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
+
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ArrayList<Player> players = new ArrayList<>();
+
+        
 
         while (true){
             System.out.println("1.Add player");
@@ -23,15 +27,46 @@ public class Main {
                 System.out.print("Enter total runs: ");
                 int score = scanner.nextInt();
                 players.add(new Player(name, score, matchesPlayed));
+
+                try{
+                    File file =new File("C:\\Users\\HARIHARA SUTHAN\\Documents\\GitHub\\CRICKET-TRACKER-BY-JAVA\\play.txt");
+                    BufferedWriter writer=new BufferedWriter(new FileWriter("C:\\Users\\HARIHARA SUTHAN\\Documents\\GitHub\\CRICKET-TRACKER-BY-JAVA\\play.txt", true));
+                    for (Player player : players) {
+                        writer.write(player.toFileString());
+                        writer.newLine();
+                    }
+                    writer.close();
+                    System.out.println("Player added successfully.");
+                }
+                catch (IOException e) {
+                    System.out.println("Error writing player data: " + e.getMessage());
+                }
                 break;
 
                 case 2:
                 if (players.isEmpty()) {
                     System.out.println("No players to display.");
                 } else {
-                    for (Player player : players) {
-                        player.display();
+                    try{
+            File file = new File("C:\\Users\\HARIHARA SUTHAN\\Documents\\GitHub\\CRICKET-TRACKER-BY-JAVA\\play.txt");
+            if (file.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    if (parts.length == 3) {
+                        String name = parts[0];
+                        int runs = Integer.parseInt(parts[1]);
+                        int matchesPlayed = Integer.parseInt(parts[2]);
+                        players.add(new Player(name, runs, matchesPlayed));
                     }
+                }
+                reader.close();
+            } 
+        }
+        catch (IOException e) {
+            System.out.println("Error reading player data: " + e.getMessage());
+        }
                 }
                 break;
                 case 3:

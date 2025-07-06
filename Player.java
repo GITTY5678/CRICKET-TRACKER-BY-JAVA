@@ -22,7 +22,7 @@ public class Player{
         System.out.println("Average Score: " + averageScore + '\n');
         
     }
-    public String tofileString() {
+    public String toFileString() {
         return name + "," + runs + "," + matchesPlayed + "," + averageScore;
     }
 }
