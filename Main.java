@@ -49,7 +49,7 @@ public class Main {
                         System.out.print("Enter new total matches played: ");
                         player.matchesPlayed = scanner.nextInt();
                         System.out.print("Enter new total runs: ");
-                        player.score = scanner.nextInt();
+                        player.runs = scanner.nextInt();
                         player.averageScore = player.calculateAverageScore(); // Recalculate average score
                         System.out.println("Player updated successfully.");
                         break;
