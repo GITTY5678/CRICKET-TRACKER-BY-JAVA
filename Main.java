@@ -9,6 +9,7 @@ public class Main {
             System.out.println("1.Add player");
             System.out.println("2.display players");
             System.out.println("3.exit");
+            System.out.println("4.update player");
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline character
@@ -36,6 +37,30 @@ public class Main {
                 case 3:
                 System.out.println("Exiting the program.");
                 break;
+
+                case 4:
+                System.out.print("Enter player name to update: ");
+                String playerName = scanner.nextLine();
+                boolean found = false;
+
+                for (Player player : players) {
+                    if (player.name.equalsIgnoreCase(playerName)) {
+                        found = true;
+                        System.out.print("Enter new total matches played: ");
+                        player.matchesPlayed = scanner.nextInt();
+                        System.out.print("Enter new total runs: ");
+                        player.score = scanner.nextInt();
+                        player.averageScore = player.calculateAverageScore(); // Recalculate average score
+                        System.out.println("Player updated successfully.");
+                        break;
+
+                    
+                    }
+                    if (!found) {
+                        System.out.println("Player not found.");
+                    }
+                    break;
+                }
 
                 default:
                 System.out.println("Invalid choice. Please try again.");
