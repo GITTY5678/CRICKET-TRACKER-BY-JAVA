@@ -3,7 +3,6 @@ import java.util.Scanner;
 import java.io.*;
 import java.util.Comparator;
 
-
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -17,11 +16,10 @@ public class Main {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split(",");
-                    if (parts.length == 4) {
+                    if (parts.length == 3) {
                         String name = parts[0];
                         int runs = Integer.parseInt(parts[1]);
                         int matchesPlayed = Integer.parseInt(parts[2]);
-                        double averageScore = Double.parseDouble(parts[3]);
                         players.add(new Player(name, runs, matchesPlayed));
                     }
                 }
@@ -39,14 +37,15 @@ public class Main {
             System.out.println("2. Display Players");
             System.out.println("3. Exit");
             System.out.println("4. Update Player");
-            System.out.println("5. delete Player");
-            System.out.println("6.sort by average ");
+            System.out.println("5. Delete Player");
+            System.out.println("6. Sort by Average");
+            System.out.println("7. Export to CSV");
+            System.out.println("8. Show Team Stats");
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
 
             switch (choice) {
-
                 case 1:
                     System.out.print("Enter player name: ");
                     String name = scanner.nextLine();
@@ -54,24 +53,11 @@ public class Main {
                     int matchesPlayed = scanner.nextInt();
                     System.out.print("Enter total runs: ");
                     int runs = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
+                    scanner.nextLine();
 
-                    Player newPlayer = new Player(name, runs, matchesPlayed);
-                    players.add(newPlayer);
+                    players.add(new Player(name, runs, matchesPlayed));
                     System.out.println("✅ Player added.");
-
-                    // 💾 Save all players after adding
-                    try {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter("play.txt"));
-                        for (Player p : players) {
-                            writer.write(p.toFileString());
-                            writer.newLine();
-                        }
-                        writer.close();
-                        System.out.println("💾 Data saved.");
-                    } catch (IOException e) {
-                        System.out.println("⚠️ Error saving player data: " + e.getMessage());
-                    }
+                    savePlayers(players);
                     break;
 
                 case 2:
@@ -93,95 +79,117 @@ public class Main {
                     System.out.print("Enter player name to update: ");
                     String playerName = scanner.nextLine();
                     boolean found = false;
-
                     for (Player player : players) {
                         if (player.name.equalsIgnoreCase(playerName)) {
-                            System.out.print("Enter new total matches played: ");
+                            System.out.print("Enter new matches played: ");
                             player.matchesPlayed = scanner.nextInt();
-                            System.out.print("Enter new total runs: ");
+                            System.out.print("Enter new runs: ");
                             player.runs = scanner.nextInt();
-                            scanner.nextLine(); // consume newline
+                            scanner.nextLine();
                             player.averageScore = player.calculateAverageScore();
                             System.out.println("✅ Player updated.");
                             found = true;
-
-                            // 💾 Save updated list to file
-                            try {
-                                BufferedWriter writer = new BufferedWriter(new FileWriter("play.txt"));
-                                for (Player p : players) {
-                                    writer.write(p.toFileString());
-                                    writer.newLine();
-                                }
-                                writer.close();
-                                System.out.println("💾 Data saved.");
-                            } catch (IOException e) {
-                                System.out.println("⚠️ Error saving player data: " + e.getMessage());
-                            }
                             break;
                         }
                     }
-
                     if (!found) {
                         System.out.println("❌ Player not found.");
+                    } else {
+                        savePlayers(players);
                     }
                     break;
-                    case 5:
-                    System.out.print("Enter player name to delete: ");
-                    String deletename = scanner.nextLine();
-                    boolean delete = false;
-                    for (int i=0;i< players.size(); i++) {
-                        if (players.get(i).name.equalsIgnoreCase(deletename)) {
-                            players.remove(i);
-                            System.out.println("✅ Player deleted.");
-                            delete = true;
 
-                            // 💾 Save updated list to file
-                            try {
-                                BufferedWriter writer = new BufferedWriter(new FileWriter("play.txt"));
-                                for (Player p : players) {
-                                    writer.write(p.toFileString());
-                                    writer.newLine();
-                                }
-                                writer.close();
-                                System.out.println("💾 Data saved.");
-                            } catch (IOException e) {
-                                System.out.println("⚠️ Error saving player data: " + e.getMessage());
-                            }
+                case 5:
+                    System.out.print("Enter player name to delete: ");
+                    String deleteName = scanner.nextLine();
+                    boolean deleted = false;
+                    for (int i = 0; i < players.size(); i++) {
+                        if (players.get(i).name.equalsIgnoreCase(deleteName)) {
+                            players.remove(i);
+                            deleted = true;
+                            System.out.println("🗑 Player deleted.");
                             break;
                         }
-                    }   
-                    case 6:
+                    }
+                    if (!deleted) {
+                        System.out.println("❌ Player not found.");
+                    } else {
+                        savePlayers(players);
+                    }
+                    break;
+
+                case 6:
                     if (players.isEmpty()) {
-                        System.out.println("No players to sort");
-                    }else{
+                        System.out.println("⚠️ No players to sort.");
+                    } else {
                         players.sort(new Comparator<Player>() {
-                            public int compare(Player a,Player b){
+                            public int compare(Player a, Player b) {
                                 return Double.compare(b.averageScore, a.averageScore);
                             }
                         });
-                        System.out.println("Players sorted by average score in descending order:");
+                        System.out.println("📊 Players sorted by average:");
                         for (Player p : players) {
                             p.display();
                         }
+                        savePlayers(players);
                     }
+                    break;
+
+                case 7:
                     try {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter("play.txt"));
+                        BufferedWriter writer = new BufferedWriter(new FileWriter("players.csv"));
+                        writer.write("Name,Runs,Matches,Average");
+                        writer.newLine();
                         for (Player p : players) {
-                            writer.write(p.toFileString());
+                            writer.write(p.name + "," + p.runs + "," + p.matchesPlayed + "," + String.format("%.2f", p.averageScore));
                             writer.newLine();
                         }
                         writer.close();
-                        System.out.println("💾 Data saved.");
+                        System.out.println("✅ Exported to players.csv");
                     } catch (IOException e) {
-                        System.out.println("⚠️ Error saving player data: " + e.getMessage());
+                        System.out.println("⚠️ Error exporting to CSV: " + e.getMessage());
                     }
                     break;
-                    
 
+                case 8:
+                    if (players.isEmpty()) {
+                        System.out.println("⚠️ No players to show stats.");
+                    } else {
+                        int totalRuns = 0;
+                        int totalMatches = 0;
+                        for (Player p : players) {
+                            totalRuns += p.runs;
+                            totalMatches += p.matchesPlayed;
+                        }
+                        double teamAvg = totalMatches == 0 ? 0 : (double) totalRuns / totalMatches;
+
+                        System.out.println("🏏 Team Stats:");
+                        System.out.println("Total Players: " + players.size());
+                        System.out.println("Total Runs: " + totalRuns);
+                        System.out.println("Total Matches: " + totalMatches);
+                        System.out.println("Team Batting Average: " + String.format("%.2f", teamAvg));
+                    }
+                    break;
 
                 default:
-                    System.out.println("❌ Invalid choice. Please try again.");
+                    System.out.println("❌ Invalid choice. Try again.");
             }
         }
     }
+
+    // 💾 Helper method to save players
+    public static void savePlayers(ArrayList<Player> players) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("play.txt"));
+            for (Player p : players) {
+                writer.write(p.toFileString());
+                writer.newLine();
+            }
+            writer.close();
+            System.out.println("💾 Data saved.");
+        } catch (IOException e) {
+            System.out.println("⚠️ Error saving player data: " + e.getMessage());
+        }
+    }
 }
+
